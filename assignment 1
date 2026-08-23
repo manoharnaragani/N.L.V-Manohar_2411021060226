@@ -1,0 +1,58 @@
+import sys
+
+
+class DSU:
+    def __init__(self):
+        self.parent = {}
+        self.size = {}
+
+    def find(self, x):
+        if x not in self.parent:
+            self.parent[x] = x
+            self.size[x] = 1
+
+        if self.parent[x] != x:
+            self.parent[x] = self.find(self.parent[x])
+
+        return self.parent[x]
+
+    def union(self, a, b):
+        root_a = self.find(a)
+        root_b = self.find(b)
+
+        if root_a == root_b:
+            return
+
+        if self.size[root_a] < self.size[root_b]:
+            root_a, root_b = root_b, root_a
+
+        self.parent[root_b] = root_a
+        self.size[root_a] += self.size[root_b]
+
+
+def connectedComponents(bg):
+    dsu = DSU()
+
+    for a, b in bg:
+        dsu.union(a, b)
+
+    component_sizes = []
+
+    for node in dsu.parent:
+        if dsu.find(node) == node and dsu.size[node] >= 2:
+            component_sizes.append(dsu.size[node])
+
+    return [min(component_sizes), max(component_sizes)]
+
+
+data = sys.stdin.read().split()
+n = int(data[0])
+
+bg = []
+for i in range(n):
+    a = int(data[1 + 2 * i])
+    b = int(data[2 + 2 * i])
+    bg.append([a, b])
+
+answer = connectedComponents(bg)
+print(answer[0], answer[1])
